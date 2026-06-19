@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gerência - Grupo BM</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; margin: 0; padding: 10px; min-height: 100vh; color: #333; }
+        .hidden { display: none !important; }
+        
+        /* Estilo Login */
+        .login-box { max-width: 300px; margin: 100px auto; background: white; padding: 25px; border-radius: 8px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .login-box button { width: 100%; padding: 12px; background: #0a1c40; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
+        /* Estilo Painel */
+        .container { padding: 15px; width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        .header { background: #ffffff; padding: 15px; border-radius: 8px; text-align: center; color: #0a1c40; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .download-btn { background-color: #c41212; color: white; text-decoration: none; padding: 10px; border-radius: 4px; font-weight: bold; display: block; margin-top: 10px; }
+        
+        .ranking { background: #ffffff; padding: 15px; border-radius: 8px; color: #0a1c40; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .ranking h3 { background-color: #0a1c40; color: white; padding: 10px; border-radius: 4px; margin-top: 0; text-align: center; font-size: 16px; }
+        .ranking-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-weight: bold;}
+        
+        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card { background: white; padding: 15px; border-radius: 8px; text-align: center; border-top: 4px solid #c41212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card h3 { margin: 0 0 5px; font-size: 11px; text-transform: uppercase; color: #0a1c40; }
+        .card p { margin: 0; font-size: 24px; font-weight: bold; }
+        
+        .table-container { background: white; border-radius: 8px; overflow-x: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: center; }
+        th { background-color: #0a1c40; color: #ffffff; padding: 14px 8px; font-weight: bold; text-transform: uppercase; }
+        td { padding: 12px 8px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        .filter-section { background: #ffffff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div class="login-box" id="login-dashboard">
+        <h2>Acesso Gerente</h2>
+        <input type="password" id="senha-admin" placeholder="Senha de Acesso">
+        <button onclick="validarAdmin()">Entrar</button>
+    </div>
+
+    <div class="container hidden" id="dashboard-content">
+        <div class="header">
+            <h1>Painel Gerencial</h1>
+            <a href="/baixar-relatorio" class="download-btn">⬇ Baixar Relatório</a>
+        </div>
+
+        <div class="ranking">
+            <h3>🏆 Ranking</h3>
+            <div id="ranking-list"></div>
+        </div>
+
+        <div class="cards">
+            <div class="card"><h3>Total Acertos</h3><p id="total-acertos" style="color:#2e7d32;">0</p></div>
+            <div class="card"><h3>Total Erros</h3><p id="total-erros" style="color:#c41212;">0</p></div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Funcionário</th><th>A/E</th><th>Excluir</th></tr></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+
+        <div class="filter-section">
+            <h3>Filtros</h3>
+            <input type="text" id="filter-name" placeholder="Filtrar por funcionário..." oninput="applyFilters()">
+        </div>
+    </div>
+
+    <script>
+        let globalData = [];
+
+        async function validarAdmin() {
+            const senha = document.getElementById('senha-admin').value;
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ senha })
+            });
+
+            if (res.ok) {
+                document.getElementById('login-dashboard').classList.add('hidden');
+                document.getElementById('dashboard-content').classList.remove('hidden');
+                loadData();
+            } else { alert("Senha incorreta!"); }
+        }
+
+        async function loadData() {
+            const res = await fetch('/api/dados-dashboard');
+            globalData = await res.json();
+            render(globalData);
+        }
+
+        async function removerItem(index) {
+            const senha = prompt("Senha do gerente para excluir este registro:");
+            if (!senha) return;
+            const res = await fetch('/api/remover', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ index, senha })
+            });
+            if (res.ok) { alert("Removido!"); loadData(); } else { alert("Senha incorreta!"); }
+        }
+
+        function applyFilters() {
+            const search = document.getElementById('filter-name').value.toLowerCase();
+            const filtered = globalData.filter(item => item.nome.toLowerCase().includes(search));
+            render(filtered);
+        }
+
+        function render(data) {
+            const tbody = document.getElementById('table-body');
+            const ranking = document.getElementById('ranking-list');
+            tbody.innerHTML = '';
+            ranking.innerHTML = '';
+            
+            let tA = 0, tE = 0;
+            data.forEach(item => {
+                const e = item.total - item.pontuacao;
+                tA += item.pontuacao; tE += e;
+                tbody.innerHTML += `<tr>
+                    <td style="text-align:left;"><strong>${item.nome}</strong><br><small>${item.data_hora}</small></td>
+                    <td><span style="color:#2e7d32;">${item.pontuacao}</span>/<span style="color:#c41212;">${e}</span></td>
+                    <td><button onclick="removerItem(${item.index})" style="background:none; border:none; cursor:pointer;">🗑️</button></td>
+                </tr>`;
+            });
+            document.getElementById('total-acertos').innerText = tA;
+            document.getElementById('total-erros').innerText = tE;
+            const rank = [...data].sort((a,b) => b.pontuacao - a.pontuacao).slice(0,3);
+            ranking.innerHTML = rank.map((item,i) => `<div class="ranking-item"><span>${i+1}º ${item.nome}</span><span>${item.pontuacao} pts</span></div>`).join('');
+        }
+    </script>
+</body>
+</html>
