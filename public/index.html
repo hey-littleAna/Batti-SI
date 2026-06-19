@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quiz - Grupo BM</title>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: #0a1c40; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif; }
+        .container { background: #ffffff; padding: 30px; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; text-align: center; border-top: 10px solid #c41212; }
+        h1 { color: #0a1c40; margin-top: 0; font-size: 28px; }
+        h2 { color: #0a1c40; margin-top: 5px; font-size: 20px; }
+        .bm-red { color: #c41212; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 18px; }
+        button { background-color: #c41212; color: white; border: none; padding: 18px; border-radius: 4px; font-weight: bold; font-size: 18px; width: 100%; margin-top: 10px; }
+        .hidden { display: none; }
+        .option { background: #f0f0f0; padding: 20px; margin: 10px 0; border-radius: 4px; cursor: pointer; font-size: 18px; border: 2px solid transparent; }
+        .correct { background-color: #2e7d32 !important; color: white; }
+        .wrong { background-color: #c41212 !important; color: white; }
+        .disabled { pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="login-screen">
+    <h1>Treinamento</h1>
+    <h2>GRUPO <span class="bm-red">BM</span></h2>
+    <input type="text" id="nome-funcionario" placeholder="Digite seu nome">
+    <input type="password" id="senha" placeholder="Senha do Gerente">
+    <button onclick="fazerLogin()">Entrar</button>
+</div>
+
+<div class="container hidden" id="quiz-screen">
+    <div id="question-text" style="font-size: 20px; font-weight:bold; margin-bottom:20px;"></div>
+    <div id="options-container"></div>
+</div>
+
+<script>
+    const LIMITE_DIARIO = 3; 
+
+    const bancoDePerguntas = [
+        { question: "Qual o principal diferencial da tela do Galaxy S26 Ultra?", options: ["Batimentos cardíacos", "Redução dinâmica de luz azul", "Resolução 12K"], answer: 1 },
+        { question: "O que é 'Solid-State-Ready' na bateria do S26?", options: ["Maior densidade e segurança", "Nunca recarrega", "Troca manual"], answer: 0 },
+        { question: "Por que a NPU é vital no S25/S26?", options: ["Rodar IA e tradução em tempo real", "Aumentar volume", "Controlar cor da carcaça"], answer: 0 },
+        { question: "Vantagem da 'Metalente' no iPhone 17?", options: ["Lentes mais finas", "Mais peso", "Tela inquebrável"], answer: 0 },
+        { question: "O que o 'Botão de Ação' do iPhone 16 faz?", options: ["Acesso rápido a funções", "Reset", "Lanterna"], answer: 0 },
+        { question: "Por que a arquitetura do iPhone 16/17 Pro mudou?", options: ["Dissipação de calor e baterias maiores", "Facilitar abertura", "Diminuir alto-falantes"], answer: 0 },
+        { question: "Diferencial do S26 Ultra para fotografia?", options: ["Zoom óptico de longo alcance", "Apenas vídeo", "Fotos coloridas"], answer: 0 },
+        { question: "Ceramic Shield vs Gorilla Armor?", options: ["Tecnologias de resistência a quedas/riscos", "Marketing", "Apenas Samsung resiste água"], answer: 0 }
+    ];
+
+    let perguntasDoDia = [];
+    let currentQ = 0, score = 0, employeeName = '';
+
+    // Sorteia as perguntas ao carregar
+    perguntasDoDia = [...bancoDePerguntas].sort(() => Math.random() - 0.5).slice(0, LIMITE_DIARIO);
+
+    async function fazerLogin() {
+        const nome = document.getElementById('nome-funcionario').value;
+        const senha = document.getElementById('senha').value;
+        const res = await fetch('/api/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ senha })});
+        
+        if(res.ok) {
+            employeeName = nome;
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+        } else { alert("Senha incorreta!"); }
+    }
+
+    function loadQuestion() {
+        const q = perguntasDoDia[currentQ];
+        document.getElementById('question-text').innerText = q.question;
+        const cont = document.getElementById('options-container'); cont.innerHTML = '';
+        q.options.forEach((opt, i) => {
+            const div = document.createElement('div');
+            div.className = 'option'; div.innerText = opt;
+            div.onclick = () => {
+                document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
+                if(i === q.answer) { div.classList.add('correct'); score++; } else { div.classList.add('wrong'); document.querySelectorAll('.option')[q.answer].classList.add('correct'); }
+                setTimeout(() => { currentQ++; currentQ < perguntasDoDia.length ? loadQuestion() : finish(); }, 1500);
+            };
+            cont.appendChild(div);
+        });
+    }
+
+    async function finish() {
+    // Se for Modo Teste, nós simplesmente avisamos e não chamamos o servidor
+    if (employeeName === "Modo Teste") {
+        alert("Teste finalizado. Como está no Modo Teste, este resultado não foi enviado ao Dashboard.");
+        location.reload();
+        return; // O código para aqui e não envia nada
+    }
+
+    // Se NÃO for Modo Teste, enviamos normalmente
+    await fetch('/api/resultado', { 
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify({ 
+            nome: employeeName, 
+            pontuacao: score, 
+            total: perguntasDoDia.length, 
+            data_hora: new Date().toLocaleString('pt-BR') 
+        })
+    });
+    
+    alert("Treinamento concluído!");
+    location.reload();
+    }
+    
+</script>
+</body>
+</html>
