@@ -84,15 +84,15 @@
         });
     }
 
-    async function finish() {
-    // Se for Modo Teste, nós simplesmente avisamos e não chamamos o servidor
-    if (employeeName === "Modo Teste") {
+   async function finish() {
+    // Bloqueio rigoroso: se for "Modo Teste", não envia nada e apenas recarrega
+    if (employeeName.trim().toLowerCase() === "modo teste") {
         alert("Teste finalizado. Como está no Modo Teste, este resultado não foi enviado ao Dashboard.");
         location.reload();
-        return; // O código para aqui e não envia nada
+        return; 
     }
 
-    // Se NÃO for Modo Teste, enviamos normalmente
+    // Se o nome não for "Modo Teste", envia para o servidor
     await fetch('/api/resultado', { 
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
@@ -106,7 +106,7 @@
     
     alert("Treinamento concluído!");
     location.reload();
-    }
+}
     
 </script>
 </body>
