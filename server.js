@@ -75,6 +75,12 @@ app.get('/baixar-relatorio', (req, res) => res.download(csvFilePath, 'relatorio_
 // --- FIM DO ARQUIVO ---
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+console.log("Iniciando processo de escuta na porta", PORT);
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log("Servidor rodando com sucesso!");
+});
+
+server.on('error', (err) => {
+    console.error("ERRO FATAL DO NODE:", err);
 });
