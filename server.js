@@ -10,9 +10,13 @@ const SENHA_MESTRA = "116289";
 const dataDir = '/app/data';
 const csvFilePath = path.join(dataDir, 'resultados.csv');
 
-// Garante que o diretório e o arquivo existam
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-if (!fs.existsSync(csvFilePath)) fs.writeFileSync(csvFilePath, 'nome;pontuacao;total;data_hora\n');
+// Tente criar o arquivo de forma silenciosa
+try {
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    if (!fs.existsSync(csvFilePath)) fs.writeFileSync(csvFilePath, 'nome;pontuacao;total;data_hora\n');
+} catch (err) {
+    console.error("Erro ao preparar a pasta de dados (isso pode ser permissão):", err);
+}
 
 // ROTA DE LOGIN
 app.post('/api/login', (req, res) => {
