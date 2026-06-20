@@ -24,7 +24,11 @@ app.post('/api/login', (req, res) => {
 // ROTA DE SALVAR (Executada apenas se o index.html permitir)
 app.post('/api/resultado', (req, res) => {
     const { nome, pontuacao, total, data_hora } = req.body;
-    if (!nome || nome.trim() === "") return res.status(400).send("Nome inválido");
+    
+    // LINHA NOVA: Verifica se o nome é "Modo Teste" (ignorando maiúsculas/minúsculas)
+    if (!nome || nome.trim().toLowerCase() === "modo teste") {
+        return res.status(400).send("Nome inválido");
+    }
     
     fs.appendFileSync(csvFilePath, `"${nome}";${pontuacao};${total};"${data_hora}"\n`);
     res.json({ status: 'sucesso' });
