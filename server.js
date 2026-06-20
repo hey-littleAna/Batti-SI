@@ -71,12 +71,8 @@ app.post('/api/remover', (req, res) => {
 });
 
 app.get('/baixar-relatorio', (req, res) => res.download(csvFilePath, 'relatorio_bm.csv'));
-        const PORT = process.env.PORT || 3000;
 
-// Adicione esta rota simples para o Easypanel checar se o servidor está vivo
-app.get('/health', (req, res) => res.status(200).send('OK'));
-
-// Apenas este bloco deve existir no final do arquivo:
+// --- FIM DO ARQUIVO ---
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
