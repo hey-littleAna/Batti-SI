@@ -86,11 +86,11 @@
 
    async function finish() {
     // Bloqueio rigoroso: se for "Modo Teste", não envia nada e apenas recarrega
-    if (employeeName.trim().toLowerCase() === "modo teste") {
-        alert("Teste finalizado. Como está no Modo Teste, este resultado não foi enviado ao Dashboard.");
-        location.reload();
-        return; 
-    }
+  if (employeeName.trim().toLowerCase() === "modo teste") {
+    alert("Teste finalizado. Modo Teste não enviado.");
+    location.reload();
+    return;
+ }
 
     // Se o nome não for "Modo Teste", envia para o servidor
     await fetch('/api/resultado', { 
