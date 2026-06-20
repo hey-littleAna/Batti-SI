@@ -68,4 +68,13 @@ app.post('/api/remover', (req, res) => {
 
 app.get('/baixar-relatorio', (req, res) => res.download(csvFilePath, 'relatorio_bm.csv'));
         const PORT = process.env.PORT || 3000;
+
+// Adicione esta rota simples para o Easypanel checar se o servidor está vivo
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
+// E garanta que o listen aceite conexões externas
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
+
 app.listen(PORT, '0.0.0.0', () => console.log(`Servidor rodando na porta ${PORT}`));
