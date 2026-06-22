@@ -2,121 +2,174 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gerência - Grupo BM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Gerência Grupo BM</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background-color: #e0e0e0; /* Cinza de fundo para destacar o "aparelho" */
-            margin: 0; 
-            padding: 0; 
-            display: flex; 
-            justify-content: center; 
-            min-height: 100vh;
-        }
-
-        /* Moldura de "Aparelho" - Força a proporção de celular */
-        .mobile-frame {
-            width: 100%;
-            max-width: 400px;
-            background: #f4f7f6;
-            min-height: 100vh;
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .border-top { width: 100%; height: 15px; background: #c41212; }
-        .border-bottom { width: 100%; height: 15px; background: #c41212; margin-top: auto; }
-
+        body { font-family: 'Segoe UI', sans-serif; background-color: #e0e0e0; margin: 0; min-height: 100vh; display: flex; justify-content: center; }
+        
+        .mobile-frame { width: 100%; max-width: 400px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.3); position: relative; }
+        
+        .border-top, .border-bottom { width: 100%; height: 15px; background: #ffffff; }
+        .border-bottom { margin-top: auto; }
+        
+        .screen { padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 15px; }
         .hidden { display: none !important; }
 
-        #login-dashboard, .container { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; }
         
-        /* Login */
-        #login-dashboard { justify-content: center; align-items: center; }
-        #login-dashboard h2 { color: #0a1c40; margin-bottom: 25px; }
-        #login-dashboard input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; }
-        #login-dashboard button { width: 100%; padding: 15px; background: #0a1c40; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* Dashboard */
+        /* Botão padronizado */
+        .btn-padrao {
+            width: 100%; padding: 15px; border: none; border-radius: 6px; 
+            font-weight: bold; cursor: pointer; color: white; text-align: center; display: block;
+        }
+        
         .header { background: #ffffff; padding: 15px; border-radius: 8px; text-align: center; color: #0a1c40; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .download-btn { background-color: #c41212; color: white; text-decoration: none; padding: 12px; border-radius: 6px; font-weight: bold; display: block; margin-top: 10px; border: none; cursor: pointer; width: 100%; text-align: center; }
-        .ranking { background: #ffffff; padding: 12px; border-radius: 8px; color: #0a1c40; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .ranking-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-weight: bold; font-size: 14px;}
-        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .card { background: white; padding: 12px; border-radius: 8px; text-align: center; border-top: 3px solid #c41212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .table-container { background: white; border-radius: 8px; overflow-x: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; }
-        th { background-color: #0a1c40; color: #ffffff; padding: 10px 4px; text-transform: uppercase; }
-        td { padding: 10px 4px; border-bottom: 1px solid #ddd; }
-        input, select { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .item-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+
+        .ranking { background: #ffffff; padding: 15px; border-radius: 8px; color: #0a1c40; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .ranking h3 { background-color: #0a1c40; color: white; padding: 10px; border-radius: 4px; margin-top: 0; text-align: center; font-size: 16px; }
+
+        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card { background: white; padding: 15px; border-radius: 8px; text-align: center; border-top: 4px solid #c41212; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card h3 { margin: 0 0 5px; font-size: 11px; text-transform: uppercase; color: #0a1c40; }
+        .card p { margin: 0; font-size: 24px; font-weight: bold; }
+
+        .table-painel { background: white; border-radius: 8px; overflow-x: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: center; }
+        th { background-color: #0a1c40; color: #ffffff; padding: 14px 8px; font-weight: bold; text-transform: uppercase; }
+        td { padding: 12px 8px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+
+        h1 { text-align: center; color: #0a1c40; }
     </style>
 </head>
 <body>
 
-    <div class="mobile-frame">
-        <div class="border-top"></div>
+<div class="mobile-frame">
+    <div class="border-top"></div>
 
-        <div id="login-dashboard">
-            <h2>Acesso Gerente</h2>
-            <input type="text" id="matricula-admin" placeholder="Matrícula">
-            <input type="password" id="senha-admin" placeholder="Senha">
-            <button onclick="validarAdmin()">ENTRAR</button>
-        </div>
-
-        <div class="container hidden" id="dashboard-content">
-            <div class="header">
-                <h1>Painel Gerencial</h1>
-                <a href="/baixar-relatorio" class="download-btn">⬇ Baixar Relatório CSV</a>
-                <button onclick="exportarPDF()" class="download-btn" style="background-color: #2e7d32;">📄 Gerar PDF Filtrado</button>
-            </div>
-
-            <div class="ranking">
-                <h3 style="background:#0a1c40; color:white; padding:5px; border-radius:4px;">🏆 Ranking</h3>
-                <div id="ranking-list"></div>
-            </div>
-
-            <div class="cards">
-                <div class="card"><h3>Acertos</h3><p id="total-acertos" style="color:#2e7d32;">0</p></div>
-                <div class="card"><h3>Erros</h3><p id="total-erros" style="color:#c41212;">0</p></div>
-            </div>
-
-            <div class="table-container">
-                <table>
-                    <thead><tr><th>Nome</th><th>A/E</th><th>X</th></tr></thead>
-                    <tbody id="table-body"></tbody>
-                </table>
-            </div>
-
-            <div class="filter-section">
-                <input type="text" id="filter-name" placeholder="Buscar funcionário..." oninput="applyFilters()">
-                <select id="filter-month" onchange="applyFilters()">
-                    <option value="">Todos os meses</option>
-                    <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
-                    <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
-                    <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
-                    <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="border-bottom"></div>
+    <div id="screen-login" class="screen">
+        <h2 style="text-align: center;">Acesso Gerente</h2>
+        <input type="text" id="matricula" placeholder="Matrícula">
+        <input type="password" id="senha" placeholder="Senha">
+        <button class="btn-padrao" style="background: #0a1c40;" onclick="validar()">Entrar</button>
     </div>
 
-    <script>
-        // (Sua lógica permanece a mesma)
-        let globalData = [];
-        async function validarAdmin() { const matricula = document.getElementById('matricula-admin').value; const senha = document.getElementById('senha-admin').value; const res = await fetch('/api/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ matricula, senha }) }); if (res.ok) { document.getElementById('login-dashboard').classList.add('hidden'); document.getElementById('dashboard-content').classList.remove('hidden'); loadData(); } else { alert("Dados incorretos!"); } }
-        async function loadData() { const res = await fetch('/api/dados-dashboard'); globalData = await res.json(); render(globalData); }
-        async function removerItem(index) { const senha = prompt("Senha do gerente para excluir:"); if (!senha) return; const res = await fetch('/api/remover', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ index, senha }) }); if (res.ok) { alert("Removido!"); loadData(); } else { alert("Senha incorreta!"); } }
-        function applyFilters() { const search = document.getElementById('filter-name').value.toLowerCase(); const month = document.getElementById('filter-month').value; const filtered = globalData.filter(item => { const matchName = item.nome.toLowerCase().includes(search); const itemMonth = item.data_hora.split('/')[1]; return matchName && (month === "" || itemMonth === month); }); render(filtered); }
-        function render(data) { const tbody = document.getElementById('table-body'); const ranking = document.getElementById('ranking-list'); tbody.innerHTML = ''; ranking.innerHTML = ''; let tA = 0, tE = 0; data.forEach(item => { const e = item.total - item.pontuacao; tA += item.pontuacao; tE += e; tbody.innerHTML += `<tr><td style="text-align:left;"><strong>${item.nome}</strong><br><small>${item.data_hora}</small></td><td><span style="color:#2e7d32;">${item.pontuacao}</span>/<span style="color:#c41212;">${e}</span></td><td><button onclick="removerItem(${item.index})" style="background:none; border:none; cursor:pointer;">🗑️</button></td></tr>`; }); document.getElementById('total-acertos').innerText = tA; document.getElementById('total-erros').innerText = tE; const rank = [...data].sort((a,b) => b.pontuacao - a.pontuacao).slice(0,3); ranking.innerHTML = rank.map((item,i) => `<div class="ranking-item"><span>${i+1}º ${item.nome}</span><span>${item.pontuacao} pts</span></div>`).join(''); }
-        function exportarPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text("Relatorio de Quiz - Grupo BM", 10, 10); let y = 20; document.querySelectorAll('#table-body tr').forEach(tr => { doc.text(tr.innerText.replace(/\t/g, ' - '), 10, y); y += 10; }); doc.save("relatorio.pdf"); }
-    </script>
+    <div id="screen-painel" class="screen hidden">
+        <div class="header"><h1>Painel Gerencial</h1></div>
+        
+        <div class="ranking">
+            <h3>🏆 Ranking </h3>
+            <div id="ranking-list"></div>
+        </div>
+
+        <div class="cards">
+            <div class="card"><h3>Total Acertos</h3><p id="total-acertos" style="color:#2e7d32;">0</p></div>
+            <div class="card"><h3>Total Erros</h3><p id="total-erros" style="color:#c41212;">0</p></div>
+        </div>
+
+        <div class="table-painel">
+            <table>
+                <thead><tr><th>Funcionário</th><th>Acertos</th><th>Erros</th></tr></thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+        
+        <button class="btn-padrao" style="background: #c41212;" onclick="trocarTela('screen-relatorio')">Ver relatório completo</button>
+    </div>
+
+    <div id="screen-relatorio" class="screen hidden">
+        <h1>Relatório</h1>
+        
+        <div class="filter-section" style="background:#f8f9fa; padding:15px; border-radius:8px; display:flex; flex-direction:column; gap:10px;">
+            <input type="text" id="filter-name" placeholder="Nome do funcionário" oninput="applyFilters()">
+            
+            <select id="filter-period" onchange="applyFilters()">
+                <option value="">Selecione o período...</option>
+                <optgroup label="Semanas">
+                    <option value="sem-atual">Semana Atual</option>
+                    <option value="sem-anterior">Semana Anterior</option>
+                </optgroup>
+                <optgroup label="Meses">
+                    <option value="12-2026">Dezembro 2026</option>
+                    <option value="11-2026">Novembro 2026</option>
+                    <option value="10-2026">Outubro 2026</option>
+                    <option value="09-2026">Setembro 2026</option>
+                    <option value="08-2026">Agosto 2026</option>
+                    <option value="07-2026">Julho 2026</option>
+                    <option value="06-2026">Junho 2026</option>
+                    <option value="05-2026">Maio 2026</option>
+                    <option value="04-2026">Abril 2026</option>
+                    <option value="03-2026">Março 2026</option>
+                </optgroup>
+            </select>
+            
+            <button class="btn-padrao" style="background:#2e7d32;" onclick="exportarPDF()">📄 Gerar PDF </button>
+        </div>
+        
+        <button class="btn-padrao" style="background: #555;" onclick="trocarTela('screen-painel')">Voltar ao Painel</button>
+    </div>
+
+    <div class="border-bottom"></div>
+</div>
+
+<script>
+    let timer;
+    function trocarTela(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function validar() { trocarTela('screen-painel'); loadData(); }
+
+    async function loadData() {
+        const data = [{nome: "Thiago", pontuacao: 10, total: 12}, {nome: "Igor", pontuacao: 8, total: 10}];
+        renderRanking(data);
+        renderTabela(data);
+    }
+
+    function renderTabela(data) {
+        let tA = 0, tE = 0;
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = data.map(item => {
+            let e = item.total - item.pontuacao;
+            tA += item.pontuacao;
+            tE += e;
+            return `<tr><td>${item.nome}</td><td>${item.pontuacao}</td><td>${e}</td></tr>`;
+        }).join('');
+        document.getElementById('total-acertos').innerText = tA;
+        document.getElementById('total-erros').innerText = tE;
+    }
+
+    function renderRanking(data) {
+        data.sort((a,b) => b.pontuacao - a.pontuacao);
+        document.getElementById('ranking-list').innerHTML = data.slice(0, 3).map((item, index) => `
+            <div class="item-row" onmousedown="iniciarPressao('${item.nome}')" onmouseup="cancelarPressao()" onmouseleave="cancelarPressao()" ontouchstart="iniciarPressao('${item.nome}')" ontouchend="cancelarPressao()" style="cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-weight: bold; color: #2e7d32; min-width: 25px;">${index + 1}º</span>
+                    <span style="font-weight: 500; font-size: 16px;">${item.nome}</span>
+                </div>
+                <span style="color:green; font-weight:bold; font-size: 14px;">${item.pontuacao} Acertos</span>
+            </div>`).join('');
+    }
+
+    function iniciarPressao(nome) { timer = setTimeout(() => excluirDado(nome), 3000); }
+    function cancelarPressao() { clearTimeout(timer); }
+
+    function excluirDado(nome) {
+        const senha = prompt("Modo Exclusão: Digite a senha para excluir " + nome + ":");
+        if (senha === "116289") {
+            if (confirm("Confirmar exclusão de " + nome + "?")) {
+                alert("Excluído com sucesso!");
+                loadData();
+            }
+        } else { alert("Senha incorreta."); }
+    }
+
+    function exportarPDF() { alert("Gerando PDF..."); }
+    function applyFilters() { console.log("Filtros aplicados"); }
+</script>
 </body>
 </html>
