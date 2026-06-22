@@ -1,12 +1,15 @@
 {
-  "name": "batti-treinamento",
+  "name": "treinamento-grupo-bm",
   "version": "1.0.0",
-  "description": "Sistema de Quiz para Grupo BM",
+  "description": "Sistema de treinamento e ranking Grupo BM",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
