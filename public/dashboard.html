@@ -10,7 +10,6 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #e0e0e0; margin: 0; min-height: 100vh; display: flex; justify-content: center; }
         
         .mobile-frame { width: 100%; max-width: 400px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.3); position: relative; }
-        
         .border-top, .border-bottom { width: 100%; height: 15px; background: #ffffff; }
         .border-bottom { margin-top: auto; }
         
@@ -18,15 +17,10 @@
         .hidden { display: none !important; }
 
         input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; }
-        
-        /* Botão padronizado */
-        .btn-padrao {
-            width: 100%; padding: 15px; border: none; border-radius: 6px; 
-            font-weight: bold; cursor: pointer; color: white; text-align: center; display: block;
-        }
+        .btn-padrao { width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; text-align: center; display: block; }
         
         .header { background: #ffffff; padding: 15px; border-radius: 8px; text-align: center; color: #0a1c40; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .item-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; }
 
         .ranking { background: #ffffff; padding: 15px; border-radius: 8px; color: #0a1c40; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .ranking h3 { background-color: #0a1c40; color: white; padding: 10px; border-radius: 4px; margin-top: 0; text-align: center; font-size: 16px; }
@@ -41,7 +35,7 @@
         th { background-color: #0a1c40; color: #ffffff; padding: 14px 8px; font-weight: bold; text-transform: uppercase; }
         td { padding: 12px 8px; border-bottom: 1px solid #ddd; }
         tr:nth-child(even) { background-color: #f9f9f9; }
-
+        
         h1 { text-align: center; color: #0a1c40; }
     </style>
 </head>
@@ -59,38 +53,32 @@
 
     <div id="screen-painel" class="screen hidden">
         <div class="header"><h1>Painel Gerencial</h1></div>
-        
         <div class="ranking">
             <h3>🏆 Ranking </h3>
             <div id="ranking-list"></div>
         </div>
-
         <div class="cards">
             <div class="card"><h3>Total Acertos</h3><p id="total-acertos" style="color:#2e7d32;">0</p></div>
             <div class="card"><h3>Total Erros</h3><p id="total-erros" style="color:#c41212;">0</p></div>
         </div>
-
         <div class="table-painel">
             <table>
                 <thead><tr><th>Funcionário</th><th>Acertos</th><th>Erros</th></tr></thead>
                 <tbody id="table-body"></tbody>
             </table>
         </div>
-        
         <button class="btn-padrao" style="background: #c41212;" onclick="trocarTela('screen-relatorio')">Ver relatório completo</button>
     </div>
 
     <div id="screen-relatorio" class="screen hidden">
         <h1>Relatório</h1>
-        
         <div class="filter-section" style="background:#f8f9fa; padding:15px; border-radius:8px; display:flex; flex-direction:column; gap:10px;">
             <input type="text" id="filter-name" placeholder="Nome do funcionário" oninput="applyFilters()">
-            
             <select id="filter-period" onchange="applyFilters()">
                 <option value="">Selecione o período...</option>
                 <optgroup label="Semanas">
-                    <option value="sem-atual">Semana Atual</option>
-                    <option value="sem-anterior">Semana Anterior</option>
+                    <option value="s1">Semana Atual</option>
+                    <option value="s2">Semana Anterior</option>
                 </optgroup>
                 <optgroup label="Meses">
                     <option value="12-2026">Dezembro 2026</option>
@@ -105,11 +93,10 @@
                     <option value="03-2026">Março 2026</option>
                 </optgroup>
             </select>
-            
-            <button class="btn-padrao" style="background:#2e7d32;" onclick="exportarPDF()">📄 Gerar PDF </button>
+            <button class="btn-padrao" style="background:#2e7d32;" onclick="exportarPDF()">📄 Baixar Relatório</button>
         </div>
-        
-        <button class="btn-padrao" style="background: #555;" onclick="trocarTela('screen-painel')">Voltar ao Painel</button>
+        <div id="resultados-filtro" style="margin-top: 20px;"></div>
+        <button class="btn-padrao" style="background: #555; margin-top: auto;" onclick="trocarTela('screen-painel')">Voltar ao Painel</button>
     </div>
 
     <div class="border-bottom"></div>
@@ -117,6 +104,8 @@
 
 <script>
     let timer;
+    window.dadosGlobais = [];
+
     function trocarTela(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
@@ -125,9 +114,12 @@
     function validar() { trocarTela('screen-painel'); loadData(); }
 
     async function loadData() {
-        const data = [{nome: "Thiago", pontuacao: 10, total: 12}, {nome: "Igor", pontuacao: 8, total: 10}];
+        // Dados de teste restaurados
+        const data = [{nome: "Thiago", pontuacao: 10, total: 12, index: 0}, {nome: "Igor", pontuacao: 8, total: 10, index: 1}];
+        window.dadosGlobais = data; 
         renderRanking(data);
         renderTabela(data);
+        applyFilters();
     }
 
     function renderTabela(data) {
@@ -135,8 +127,7 @@
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = data.map(item => {
             let e = item.total - item.pontuacao;
-            tA += item.pontuacao;
-            tE += e;
+            tA += item.pontuacao; tE += e;
             return `<tr><td>${item.nome}</td><td>${item.pontuacao}</td><td>${e}</td></tr>`;
         }).join('');
         document.getElementById('total-acertos').innerText = tA;
@@ -146,30 +137,39 @@
     function renderRanking(data) {
         data.sort((a,b) => b.pontuacao - a.pontuacao);
         document.getElementById('ranking-list').innerHTML = data.slice(0, 3).map((item, index) => `
-            <div class="item-row" onmousedown="iniciarPressao('${item.nome}')" onmouseup="cancelarPressao()" onmouseleave="cancelarPressao()" ontouchstart="iniciarPressao('${item.nome}')" ontouchend="cancelarPressao()" style="cursor: pointer;">
+            <div class="item-row" onmousedown="iniciarPressao(${item.index}, '${item.nome}')" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${item.index}, '${item.nome}')" ontouchend="cancelarPressao()" style="cursor: pointer;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="font-weight: bold; color: #2e7d32; min-width: 25px;">${index + 1}º</span>
-                    <span style="font-weight: 500; font-size: 16px;">${item.nome}</span>
+                    <span style="font-weight: 500;">${item.nome}</span>
                 </div>
-                <span style="color:green; font-weight:bold; font-size: 14px;">${item.pontuacao} Acertos</span>
+                <span style="color:green; font-weight:bold;">${item.pontuacao} Acertos</span>
             </div>`).join('');
     }
 
-    function iniciarPressao(nome) { timer = setTimeout(() => excluirDado(nome), 3000); }
+    function applyFilters() {
+        const nomeFiltro = document.getElementById('filter-name').value.toLowerCase();
+        const container = document.getElementById('resultados-filtro');
+        const filtrados = window.dadosGlobais.filter(item => item.nome.toLowerCase().includes(nomeFiltro));
+
+        container.innerHTML = filtrados.map(item => `
+            <div class="item-row" onmousedown="iniciarPressao(${item.index}, '${item.nome}')" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${item.index}, '${item.nome}')" ontouchend="cancelarPressao()" style="cursor: pointer; padding: 10px; border-bottom: 1px solid #ddd;">
+                <div><strong>${item.nome}</strong></div>
+                <div style="color:green;">${item.pontuacao} Acertos</div>
+            </div>`).join('');
+    }
+
+    function iniciarPressao(index, nome) { timer = setTimeout(() => excluirDado(index, nome), 3000); }
     function cancelarPressao() { clearTimeout(timer); }
 
-    function excluirDado(nome) {
+    function excluirDado(index, nome) {
         const senha = prompt("Modo Exclusão: Digite a senha para excluir " + nome + ":");
         if (senha === "116289") {
-            if (confirm("Confirmar exclusão de " + nome + "?")) {
-                alert("Excluído com sucesso!");
-                loadData();
-            }
+            alert("Excluído com sucesso!");
+            loadData();
         } else { alert("Senha incorreta."); }
     }
 
     function exportarPDF() { alert("Gerando PDF..."); }
-    function applyFilters() { console.log("Filtros aplicados"); }
 </script>
 </body>
 </html>
