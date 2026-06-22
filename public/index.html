@@ -12,9 +12,9 @@
         h2 { color: #0a1c40; margin-top: 5px; font-size: 20px; }
         .bm-red { color: #c41212; }
         input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 18px; }
-        button { background-color: #c41212; color: white; border: none; padding: 18px; border-radius: 4px; font-weight: bold; font-size: 18px; width: 100%; margin-top: 10px; }
+        button { background-color: #c41212; color: white; border: none; padding: 18px; border-radius: 4px; font-weight: bold; font-size: 18px; width: 100%; margin-top: 10px; cursor: pointer; }
         .hidden { display: none; }
-        .option { background: #f0f0f0; padding: 20px; margin: 10px 0; border-radius: 4px; cursor: pointer; font-size: 18px; border: 2px solid transparent; }
+        .option { background: #f0f0f0; padding: 20px; margin: 10px 0; border-radius: 4px; cursor: pointer; font-size: 18px; border: 2px solid transparent; transition: 0.2s; }
         .correct { background-color: #2e7d32 !important; color: white; }
         .wrong { background-color: #c41212 !important; color: white; }
         .disabled { pointer-events: none; }
@@ -36,78 +36,108 @@
 </div>
 
 <script>
-    const LIMITE_DIARIO = 3; 
+    const LIMITE_DIARIO = 5; 
 
-    const bancoDePerguntas = [
-        { question: "Qual o principal diferencial da tela do Galaxy S26 Ultra?", options: ["Batimentos cardíacos", "Redução dinâmica de luz azul", "Resolução 12K"], answer: 1 },
-        { question: "O que é 'Solid-State-Ready' na bateria do S26?", options: ["Maior densidade e segurança", "Nunca recarrega", "Troca manual"], answer: 0 },
-        { question: "Por que a NPU é vital no S25/S26?", options: ["Rodar IA e tradução em tempo real", "Aumentar volume", "Controlar cor da carcaça"], answer: 0 },
-        { question: "Vantagem da 'Metalente' no iPhone 17?", options: ["Lentes mais finas", "Mais peso", "Tela inquebrável"], answer: 0 },
-        { question: "O que o 'Botão de Ação' do iPhone 16 faz?", options: ["Acesso rápido a funções", "Reset", "Lanterna"], answer: 0 },
-        { question: "Por que a arquitetura do iPhone 16/17 Pro mudou?", options: ["Dissipação de calor e baterias maiores", "Facilitar abertura", "Diminuir alto-falantes"], answer: 0 },
-        { question: "Diferencial do S26 Ultra para fotografia?", options: ["Zoom óptico de longo alcance", "Apenas vídeo", "Fotos coloridas"], answer: 0 },
-        { question: "Ceramic Shield vs Gorilla Armor?", options: ["Tecnologias de resistência a quedas/riscos", "Marketing", "Apenas Samsung resiste água"], answer: 0 }
-    ];
+   const bancoDePerguntas = [
+    // --- SAMSUNG BÁSICO ---
+    { question: "Qual a principal vantagem de um aparelho Samsung da linha Ultra?", options: ["Melhores câmeras e processamento", "Apenas a cor", "O carregador incluso"], answer: 0 },
+    { question: "O que é a tela Gorilla Armor presente nos modelos mais novos da Samsung?", options: ["Vidro mais resistente e menos reflexivo", "Tela de plástico", "Tela que muda de cor"], answer: 0 },
+    { question: "Para que serve a Inteligência Artificial (Galaxy AI) nos novos aparelhos?", options: ["Traduzir ligações e editar fotos", "Aumentar o peso do aparelho", "Servir como espelho"], answer: 0 },
+    { question: "Qual a diferença do S26 Ultra para um aparelho básico?", options: ["Performance superior e câmeras profissionais", "Ele é mais frágil", "Ele é menor"], answer: 0 },
 
-    let perguntasDoDia = [];
+    // --- IPHONE BÁSICO ---
+    { question: "O que é o 'Botão de Controle de Câmera' dos novos iPhones?", options: ["Atalho tátil para fotos e zoom", "Botão de desligar", "Botão de volume"], answer: 0 },
+    { question: "Qual a principal diferença entre um iPhone 16 e um iPhone 17 Pro?", options: ["Melhor tela, câmeras e processador no Pro", "O 17 Pro é de plástico", "Não há diferença"], answer: 0 },
+    { question: "O que é a conexão USB-C nos novos iPhones?", options: ["Entrada padrão mais rápida e universal", "Entrada exclusiva da Apple", "Não serve para carregar"], answer: 0 },
+    { question: "O que é o Ceramic Shield na tela do iPhone?", options: ["Tecnologia de resistência a quedas", "Um tipo de adesivo", "Uma capa de borracha"], answer: 0 },
+
+    // --- ESPECIFICAÇÕES E VENDAS ---
+    { question: "O que significa dizer que uma tela tem 120Hz de frequência?", options: ["Movimentos e navegação muito mais fluidos", "A tela esquenta mais", "A tela fica sempre desligada"], answer: 0 },
+    { question: "Por que aparelhos com maior armazenamento são melhores para o cliente?", options: ["Mais espaço para fotos, vídeos e apps", "Carregam mais rápido", "São mais leves"], answer: 0 },
+    { question: "Qual a vantagem do carregamento rápido (45W) em aparelhos compatíveis?", options: ["Recarrega a bateria em menos tempo", "A bateria dura menos", "Gasta mais energia"], answer: 0 },
+    { question: "O que é o Zoom Óptico nas câmeras de aparelhos Premium?", options: ["Aproxima a imagem sem perder qualidade", "Zoom que deixa a foto embaçada", "Apenas para vídeos curtos"], answer: 0 },
+    { question: "A prova d'água em aparelhos premium significa que:", options: ["Ele resiste a imersões acidentais", "Ele pode ser usado para mergulhar no mar", "Ele é imune a qualquer líquido"], answer: 0 },
+    { question: "Qual o benefício de um processador de última geração (ex: Snapdragon/A-Series)?", options: ["Maior velocidade em jogos e aplicativos", "A bateria dura uma semana", "O aparelho não esquenta nada"], answer: 0 },
+    { question: "O que é o carregamento sem fio?", options: ["Carregar o aparelho apenas apoiando na base", "Carregar pelo cabo USB", "Carregar via Bluetooth"], answer: 0 }
+];
+
+    let perguntasDoDia = [...bancoDePerguntas].sort(() => Math.random() - 0.5).slice(0, LIMITE_DIARIO);
     let currentQ = 0, score = 0, employeeName = '';
-
-    // Sorteia as perguntas ao carregar
-    perguntasDoDia = [...bancoDePerguntas].sort(() => Math.random() - 0.5).slice(0, LIMITE_DIARIO);
 
     async function fazerLogin() {
         const nome = document.getElementById('nome-funcionario').value;
         const senha = document.getElementById('senha').value;
-        const res = await fetch('/api/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ senha })});
         
-        if(res.ok) {
-            employeeName = nome;
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('quiz-screen').classList.remove('hidden');
-            loadQuestion();
-        } else { alert("Senha incorreta!"); }
+        if (!nome) { alert("Por favor, insira seu nome."); return; }
+
+        try {
+            const res = await fetch('/api/login', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ senha })
+            });
+            
+            if(res.ok) {
+                employeeName = nome;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+                loadQuestion();
+            } else { alert("Senha incorreta!"); }
+        } catch (e) { alert("Erro de conexão com o servidor."); }
     }
 
     function loadQuestion() {
         const q = perguntasDoDia[currentQ];
         document.getElementById('question-text').innerText = q.question;
-        const cont = document.getElementById('options-container'); cont.innerHTML = '';
+        const cont = document.getElementById('options-container'); 
+        cont.innerHTML = '';
+        
         q.options.forEach((opt, i) => {
             const div = document.createElement('div');
-            div.className = 'option'; div.innerText = opt;
+            div.className = 'option'; 
+            div.innerText = opt;
             div.onclick = () => {
                 document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
-                if(i === q.answer) { div.classList.add('correct'); score++; } else { div.classList.add('wrong'); document.querySelectorAll('.option')[q.answer].classList.add('correct'); }
-                setTimeout(() => { currentQ++; currentQ < perguntasDoDia.length ? loadQuestion() : finish(); }, 1500);
+                if(i === q.answer) { 
+                    div.classList.add('correct'); 
+                    score++; 
+                } else { 
+                    div.classList.add('wrong'); 
+                    document.querySelectorAll('.option')[q.answer].classList.add('correct'); 
+                }
+                setTimeout(() => { 
+                    currentQ++; 
+                    currentQ < perguntasDoDia.length ? loadQuestion() : finish(); 
+                }, 1000);
             };
             cont.appendChild(div);
         });
     }
 
-   async function finish() {
-    // Bloqueio rigoroso: se for "Modo Teste", não envia nada e apenas recarrega
-  if (employeeName.trim().toLowerCase() === "modo teste") {
-    alert("Teste finalizado. Modo Teste não enviado.");
-    location.reload();
-    return;
- }
+    async function finish() {
+        if (employeeName.trim().toLowerCase() === "modo teste") {
+            alert("Treinamento finalizado (Modo Teste - Não enviado).");
+            location.reload();
+            return;
+        }
 
-    // Se o nome não for "Modo Teste", envia para o servidor
-    await fetch('/api/resultado', { 
-        method: 'POST', 
-        headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify({ 
-            nome: employeeName, 
-            pontuacao: score, 
-            total: perguntasDoDia.length, 
-            data_hora: new Date().toLocaleString('pt-BR') 
-        })
-    });
-    
-    alert("Treinamento concluído!");
-    location.reload();
-}
-    
+        try {
+            await fetch('/api/resultado', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ 
+                    nome: employeeName, 
+                    pontuacao: score, 
+                    total: perguntasDoDia.length, 
+                    data_hora: new Date().toLocaleString('pt-BR') 
+                })
+            });
+            alert("Treinamento concluído e enviado!");
+        } catch (e) {
+            alert("Erro ao enviar resultado. Verifique a conexão.");
+        }
+        location.reload();
+    }
 </script>
 </body>
 </html>
