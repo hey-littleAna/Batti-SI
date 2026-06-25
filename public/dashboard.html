@@ -80,7 +80,7 @@
                     <option value="s1">Semana Atual</option>
                     <option value="s2">Semana Anterior</option>
                 </optgroup>
-                <optgroup label="Meses">
+                <optgroup label="Mês">
                     <option value="12-2026">Dezembro 2026</option>
                     <option value="11-2026">Novembro 2026</option>
                     <option value="10-2026">Outubro 2026</option>
@@ -113,14 +113,32 @@
 
     function validar() { trocarTela('screen-painel'); loadData(); }
 
-    async function loadData() {
-        // Dados de teste restaurados
-        const data = [{nome: "Thiago", pontuacao: 10, total: 12, index: 0}, {nome: "Igor", pontuacao: 8, total: 10, index: 1}];
-        window.dadosGlobais = data; 
-        renderRanking(data);
-        renderTabela(data);
-        applyFilters();
+   async function loadData() {
+    try {
+        // Tenta buscar do servidor
+        const res = await fetch('/api/dados-dashboard');
+        const data = await res.json();
+        
+        // Se o servidor retornar algo, usa, se não, usa o teste
+        if (data && data.length > 0) {
+            window.dadosGlobais = data;
+        } else {
+            throw new Error("Sem dados no servidor");
+        }
+    } catch (e) {
+        console.log("Servidor offline ou sem dados, usando dados de teste.");
+        // Se falhar ou estiver vazio, usa os dados de teste que você configurou
+        window.dadosGlobais = [
+            {nome: "Thiago", pontuacao: 10, total: 12, index: 0}, 
+            {nome: "Igor", pontuacao: 8, total: 10, index: 1}
+        ];
     }
+    
+    // Agora renderiza tudo usando a variável global
+    renderRanking(window.dadosGlobais);
+    renderTabela(window.dadosGlobais);
+    applyFilters(); // Isso garante que os dados apareçam no relatório
+}
 
     function renderTabela(data) {
         let tA = 0, tE = 0;
@@ -147,17 +165,35 @@
     }
 
     function applyFilters() {
-        const nomeFiltro = document.getElementById('filter-name').value.toLowerCase();
-        const container = document.getElementById('resultados-filtro');
-        const filtrados = window.dadosGlobais.filter(item => item.nome.toLowerCase().includes(nomeFiltro));
-
-        container.innerHTML = filtrados.map(item => `
-            <div class="item-row" onmousedown="iniciarPressao(${item.index}, '${item.nome}')" onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${item.index}, '${item.nome}')" ontouchend="cancelarPressao()" style="cursor: pointer; padding: 10px; border-bottom: 1px solid #ddd;">
-                <div><strong>${item.nome}</strong></div>
-                <div style="color:green;">${item.pontuacao} Acertos</div>
-            </div>`).join('');
+    const nomeFiltro = document.getElementById('filter-name').value.toLowerCase();
+    const container = document.getElementById('resultados-filtro');
+    
+    // Verifica se os dados existem
+    if (!window.dadosGlobais || window.dadosGlobais.length === 0) {
+        container.innerHTML = "<p style='text-align:center;'>Nenhum dado carregado.</p>";
+        return;
     }
 
+    const filtrados = window.dadosGlobais.filter(item => 
+        item.nome.toLowerCase().includes(nomeFiltro)
+    );
+
+    if (filtrados.length === 0) {
+        container.innerHTML = "<p style='text-align:center;'>Nenhum funcionário encontrado.</p>";
+        return;
+    }
+
+    // Renderiza na tela
+    container.innerHTML = filtrados.map(item => `
+        <div class="item-row" onmousedown="iniciarPressao(${item.index}, '${item.nome}')" 
+             onmouseup="cancelarPressao()" ontouchstart="iniciarPressao(${item.index}, '${item.nome}')" 
+             ontouchend="cancelarPressao()" style="cursor: pointer; padding: 10px; border-bottom: 1px solid #ddd;">
+            <div><strong>${item.nome}</strong></div>
+            <div style="color:green;">${item.pontuacao} Acertos</div>
+            <div style="color:red;">${item.total - item.pontuacao} Erros</div>
+        </div>
+    `).join('');
+}
     function iniciarPressao(index, nome) { timer = setTimeout(() => excluirDado(index, nome), 3000); }
     function cancelarPressao() { clearTimeout(timer); }
 
@@ -169,7 +205,36 @@
         } else { alert("Senha incorreta."); }
     }
 
-    function exportarPDF() { alert("Gerando PDF..."); }
+    function exportarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Título do PDF
+    doc.setFontSize(18);
+    doc.text("Relatório de Treinamento Grupo BM", 10, 20);
+    
+    // Pega os dados que estão na tela (filtrados)
+    const dados = Array.from(document.querySelectorAll('#resultados-filtro .item-row'));
+    
+    if (dados.length === 0) {
+        alert("Nenhum dado na tela para exportar.");
+        return;
+    }
+
+    let y = 40;
+    doc.setFontSize(12);
+    dados.forEach((row, index) => {
+        // Pega o texto de dentro de cada div da linha
+        const texto = row.innerText.replace(/\n/g, ' - ');
+        doc.text(`${index + 1}. ${texto}`, 10, y);
+        y += 10;
+        
+        // Se chegar ao final da página, cria uma nova
+        if (y > 280) { doc.addPage(); y = 20; }
+    });
+
+    doc.save("Relatório_treinamento.pdf");
+}
 </script>
 </body>
 </html>
