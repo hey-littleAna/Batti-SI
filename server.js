@@ -8,8 +8,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // CONFIGURAÇÃO DE ACESSO (Múltiplos Gerentes)
 const SENHAS_AUTORIZADAS = {
-    "THIAGO": "116289",
-    "UBIRATAN": "072026",
+    "T3662707": "116289",
+    "T3771233": "072026",
 };
 
 const dataDir = '/app/data';
