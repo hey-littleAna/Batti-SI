@@ -7,64 +7,135 @@
     <style>
 
         /* Dimensionamnento de caixa: Borda da caixa */
-        * { box-sizing: border-box; } 
+        * { box-sizing: border-box; 
+        } 
 
-        /*--, corpo { altura: 100%; margem: 0; preenchimento: 0; cor de fundo: #0a1c40; exibição: flex; justificar-conteúdo: centro; alinhar-itens: centro; família de fontes: 'Segoe UI', sans-serif; } */
-        html, body { height: 100%; margin: 0; padding: 0; background-color: #0a1c40; display: flex; justify-content: center; align-items: center; font-family: 'Segoe UI', sans-serif; }
+        body, html { 
+            height: 100%; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #0a1c40; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-family: 'Segoe UI', sans-serif; 
+        }
 
-        /*.container { fundo: #ffffff; preenchimento: 30px; largura: 90%; largura mínima; altura mínima; altura: auto; exibição: flex; direção-flexível: coluna; justificar-conteúdo: ínicio flexível; alinhamento do texto: centro; } */
-        .container { background: #ffffff; padding: 28px; width: 90%; max-width: 360px; min-height: 400px; height: auto; display: flex; flex-direction: column; justify-content: flex-start; text-align: center; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-top: 8px solid #c41212; border-bottom: 8px solid #c41212; }
+       
+        .container { 
+            background: #ffffff; 
+            padding: 45px;            /* Aumenta as margens */
+            width: 100%;
+            max-width: 400px;        /* Limita a largura máxima */ 
+            min-height: 450px;
+            height: 100vh;          /* '100vh' é a chave: ocupa 100% da altura da tela */
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;  
+            text-align: center; 
+            align-items: center; 
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
 
-        /* h1 { cor: #0a1c40; margem-superior: 0; tamanho da fonte: 28px; } */
+        
         h1 { color: #0a1c40; margin: 40px 0 1px 0; font-size: 36px; }
-
-        /* h2 { cor: #0a1c40; margem-superior: 5px; tamanho da fonte: 20px; } */
         h2 { color: #0a1c40; margin: 0px 0 60px 0; font-size: 29px; }
-
-        /* .bm-red { cor: #c41212; } */
         .bm-red { color: #c41212; }
+        #question-text { 
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 50px;
+            text-align: center;
+            width: 100%; 
+            max-width: 350px;           /* Força a largura */
+            word-wrap: break-word;     /* Quebra palavras longas */
+            white-space: normal;      /* Garante o comportamento normal do texto */
+            padding: 0 10px;         /* Espaço nas laterais */
+        }
 
-        /* entrada { largura: 100%; preenchimento: 15px; margem: 10px 0; borda: 1px sólida #ccc; raio da borda: 4px; tamanho da fonte: 18px; } */
-        input { width: 100%; padding: 14px; margin: 10px 0 ; border: 1px solid #ccc; border-radius: 4px; font-size: 18px; }
+            
 
-        /* botão { cor de fundo: #c41212; cor: branco; borda: nenhuma; preenchimento: 18px; raio da borda: 4px; peso da fonte: negrito; tamanho da fonte: 18px; largura: 100%; margem-superior: 10px; cursor: ponteiro; } */
-        button { background-color: #c41212; color: white; border: none; padding: 12px; border-radius: 4px; font-weight: bold; font-size: 18px; width: 100%; margin: 60px 0 40px 0; cursor: pointer; }
+        /* FORMULÁRIO E QUIZ */
+        input, button, .option { 
+            width: 100%; max-width: 300px;
+            padding: 14px; border-radius: 4px; font-size: 18px;
+        }   
 
-        /* botão:hover { cor de fundo: #a00e0e; } */
+       
+
+        input { margin: 10px 0; border: 1px solid #ccc; }
+        button { 
+            background-color: #0a1c40; color: white; 
+            border: none; font-weight: bold;  margin: 60px 0 40px 0; cursor: pointer; 
+        }
+        
+        /* 5. QUIZ E BOTÕES DE OPÇÃO */
+        #options-container {
+            width: 100%;             /* Garante que o container ocupe o espaço disponível */
+            display: flex;           /* Flexbox para controlar os botões */
+            flex-direction: column;
+            padding: 18px 14px;         
+        }
+        
+        .option { 
+            background: #ffffff; 
+            margin: 10px 0; 
+            cursor: pointer; 
+            border: 1px solid #ccc; 
+            transition: 0.2s;
+            word-wrap: break-word;          /* Quebra o texto dentro do botão */
+            white-space: normal;             /* Permite que o texto quebre em várias linhas */
+            text-align: center;              /* Centraliza o texto */
+            min-height: 50px;                /* Garante uma altura mínima para comportar várias linhas */
+            display: flex;                   /* Flex ajuda a centralizar verticalmente */
+            align-items: center;             /* Centraliza texto verticalmente */    
+            justify-content: center;         /* Centraliza texto horizontalmente */
+        }
+
+        .footer-treinamento {
+         margin-top: auto;      /* Empurra o rodapé para o fim do container */
+         padding-top: 20px;     /* Espaço entre as opções e o texto */
+         font-size: 14px;
+         color: #0a1c40;        /* Cor azul escuro */
+         font-weight: bold;
+         opacity: 0.6;          /* Um pouco transparente para não tirar a atenção do quiz */
+         text-align: center;
+       }
+
+       
+        .option.correct { background-color: #2e7d32 !important; color: white; }
+        .option.wrong { background-color: #c41212 !important; color: white; }
+        .disabled { pointer-events: none; }
         .hidden { display: none; }
 
-        /* .opção { cor de fundo: #f0f0f0; preenchimento: 20px; margem: 10px 0; raio da borda: 4px; cursor: ponteiro; tamanho da fonte: 18px; borda: 2px sólida transparente; transição: 0,2s; } */
-        .option { background: #f0f0f0; padding: 20px; margin: 10px 0; border-radius: 4px; cursor: pointer; font-size: 18px; border: 2px solid transparent; transition: 0.2s; }
-
-        /* .opção:hover { cor de fundo: #e0e0e0; } */
-        .correct { background-color: #2e7d32 !important; color: white; }
-
-        /* .opção.errada { cor de fundo: #c41212 !importante; cor: branco; } */
-        .wrong { background-color: #c41212 !important; color: white; }
-
-        /* .desativado { eventos de ponteiro: nenhum; } */
-        .disabled { pointer-events: none; }
+        
 
     </style>
 </head>
 <body>
 
+
+<!--TELA DE LOGIN ---->
 <div class="container" id="login-screen">
-    <h1>Treinamento</h1>
-    <h2>GRUPO <span class="bm-red">BM</span></h2>
+    <h1> Treinamento </h1>
+    <h2> GRUPO <span class="bm-red">BM</span></h2>
     <input type="text" id="nome-funcionario" placeholder="Nome">
     <input type="password" id="senha" placeholder="Senha">
     <button onclick="fazerLogin()">Entrar</button>
 </div>
 
+<!-- TELA DO QUIZ  -->
 <div class="container hidden" id="quiz-screen">
-    <div id="question-text" style="font-size: 20px; font-weight:bold; margin-bottom:10px;"></div>
+    <div id="question-text"></div>
     <div id="options-container"></div>
+
+    
+    <!-- Novo rodapé -->
+    <div class="footer-treinamento">Treinamento Grupo BM</div>
 </div>
 
 <script>
-    const LIMITE_DIARIO = 5; 
-
+   const LIMITE_DIARIO = 5; 
    const bancoDePerguntas = [
     // --- SAMSUNG BÁSICO ---
     { question: "Qual a principal vantagem de um aparelho Samsung da linha Ultra?", options: ["Melhores câmeras e processamento", "Apenas a cor", "O carregador incluso"], answer: 0 },
@@ -94,9 +165,41 @@
     async function fazerLogin() {
         const nome = document.getElementById('nome-funcionario').value;
         const senha = document.getElementById('senha').value;
+
+        // SENHAS DOS GERENTES (para teste local sem servidor)
+        const senhasGerentes = {
+        "THIAGO": "116289",
+        "UBIRATAN": "072026",
+    };
         
         if (!nome) { alert("Por favor, insira seu nome."); return; }
 
+        // MODO TESTE COM SENHA
+        if (nome.trim().toLowerCase() === "modo teste" && senha === "111955") {
+        employeeName = nome;
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        loadQuestion();
+        return;
+    } 
+    
+       // Se digitou "modo teste" mas a senha estiver errada
+       if (nome.trim().toLowerCase() === "modo teste" && senha !== "111955") {
+        alert("Senha incorreta!");
+        return;
+    }
+
+    // VALIDAÇÃO DE SENHAS DOS GERENTES
+    // Verifica se a senha digitada corresponde a algum dos gerentes
+    const isGerente = Object.values(senhasGerentes).includes(senha);
+
+    if (isGerente) {
+        employeeName = nome;
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        loadQuestion();
+    } else {
+        // Se não for gerente, tenta validação no servidor (conforme seu código original)
         try {
             const res = await fetch('/api/login', { 
                 method: 'POST', 
@@ -110,8 +213,12 @@
                 document.getElementById('quiz-screen').classList.remove('hidden');
                 loadQuestion();
             } else { alert("Senha incorreta!"); }
-        } catch (e) { alert("Erro de conexão com o servidor."); }
+        } catch (e) { 
+            alert("Erro de conexão com o servidor."); 
+        }
     }
+}
+
 
     function loadQuestion() {
         const q = perguntasDoDia[currentQ];
@@ -119,18 +226,34 @@
         const cont = document.getElementById('options-container'); 
         cont.innerHTML = '';
         
-        q.options.forEach((opt, i) => {
+        // 1. Criamos um array de objetos para rastrear qual é a resposta correta
+        let opcoesComIndice = q.options.map((opt, i) => ({
+            text: opt,
+            isCorrect: i === q.answer
+        }));
+
+        // 2. Embaralhamos as opções (Algoritmo de Fisher-Yates)
+        opcoesComIndice.sort(() => Math.random() - 0.5);
+
+        // 3. Renderizamos os botões embaralhados
+        opcoesComIndice.forEach((opt) => {
             const div = document.createElement('div');
             div.className = 'option'; 
-            div.innerText = opt;
+            div.innerText = opt.text;
             div.onclick = () => {
                 document.querySelectorAll('.option').forEach(o => o.classList.add('disabled'));
-                if(i === q.answer) { 
+                
+                // Agora verificamos pelo atributo 'isCorrect' e não pelo índice fixo
+                if(opt.isCorrect) { 
                     div.classList.add('correct'); 
                     score++; 
                 } else { 
                     div.classList.add('wrong'); 
-                    document.querySelectorAll('.option')[q.answer].classList.add('correct'); 
+                    // Para destacar a correta caso o usuário erre:
+                    document.querySelectorAll('.option').forEach(btn => {
+                        // Encontra o botão correto pelo texto original da resposta
+                        if(btn.innerText === q.options[q.answer]) btn.classList.add('correct');
+                    });
                 }
                 setTimeout(() => { 
                     currentQ++; 
@@ -140,6 +263,7 @@
             cont.appendChild(div);
         });
     }
+   
 
     async function finish() {
         if (employeeName.trim().toLowerCase() === "modo teste") {
